@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>四川大学知乎数据分析Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f5f5f5;
+            color: #333;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .stat-card {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+            text-align: center;
+            transition: transform 0.3s ease;
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .stat-number {
+            font-size: 2.5em;
+            font-weight: bold;
+            color: #667eea;
+            display: block;
+        }
+        
+        .stat-label {
+            color: #666;
+            margin-top: 5px;
+        }
+        
+        .charts-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+        
+        .chart-card {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+        }
+        
+        .chart-title {
+            font-size: 1.2em;
+            font-weight: bold;
+            margin-bottom: 15px;
+            color: #333;
+        }
+        
+        .data-tables {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 20px;
+        }
+        
+        .table-card {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+            overflow: hidden;
+        }
+        
+        .table-header {
+            background: #667eea;
+            color: white;
+            padding: 15px 20px;
+            font-weight: bold;
+        }
+        
+        .table-content {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        
+        .table-row {
+            padding: 12px 20px;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .table-row:hover {
+            background-color: #f8f9fa;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+        
+        .refresh-btn {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 15px 20px;
+            border-radius: 50px;
+            cursor: pointer;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            transition: all 0.3s ease;
+        }
+        
+        .refresh-btn:hover {
+            background: #5a6fd8;
+            transform: scale(1.05);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- 头部 -->
+        <div class="header">
+            <h1>🎓 四川大学知乎数据分析Dashboard</h1>
+            <p>实时数据可视化分析平台</p>
+            <p id="last-update">最后更新: <span id="update-time">--</span></p>
+        </div>
+        
+        <!-- 统计卡片 -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <span class="stat-number" id="topics-count">--</span>
+                <div class="stat-label">话题数量</div>
+            </div>
+            <div class="stat-card">
+                <span class="stat-number" id="questions-count">--</span>
+                <div class="stat-label">问题数量</div>
+            </div>
+            <div class="stat-card">
+                <span class="stat-number" id="users-count">--</span>
+                <div class="stat-label">用户数量</div>
+            </div>
+            <div class="stat-card">
+                <span class="stat-number" id="answers-count">--</span>
+                <div class="stat-label">回答数量</div>
+            </div>
+            <div class="stat-card">
+                <span class="stat-number" id="total-count">--</span>
+                <div class="stat-label">总记录数</div>
+            </div>
+        </div>
+        
+        <!-- 图表区域 -->
+        <div class="charts-grid">
+            <div class="chart-card">
+                <div class="chart-title">📊 数据分布</div>
+                <canvas id="dataDistributionChart"></canvas>
+            </div>
+            <div class="chart-card">
+                <div class="chart-title">👥 话题关注者分布</div>
+                <canvas id="followerChart"></canvas>
+            </div>
+        </div>
+        
+        <!-- 数据表格 -->
+        <div class="data-tables">
+            <div class="table-card">
+                <div class="table-header">🏷️ 热门话题 TOP 10</div>
+                <div class="table-content" id="topics-table">
+                    <div class="loading">加载中...</div>
+                </div>
+            </div>
+            
+            <div class="table-card">
+                <div class="table-header">👤 活跃用户 TOP 10</div>
+                <div class="table-content" id="users-table">
+                    <div class="loading">加载中...</div>
+                </div>
+            </div>
+            
+            <div class="table-card">
+                <div class="table-header">❓ 热门问题 TOP 10</div>
+                <div class="table-content" id="questions-table">
+                    <div class="loading">加载中...</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <button class="refresh-btn" onclick="refreshData()">🔄 刷新数据</button>
+    
+    <script>
+        // 全局变量
+        let charts = {};
+        
+        // 页面加载完成后初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            loadAllData();
+            updateTimestamp();
+        });
+        
+        // 加载所有数据
+        async function loadAllData() {
+            try {
+                await Promise.all([
+                    loadStats(),
+                    loadTopics(),
+                    loadUsers(),
+                    loadQuestions(),
+                    loadCharts()
+                ]);
+                updateTimestamp();
+            } catch (error) {
+                console.error('数据加载失败:', error);
+            }
+        }
+        
+        // 加载统计数据
+        async function loadStats() {
+            const response = await fetch('/api/stats');
+            const stats = await response.json();
+            
+            document.getElementById('topics-count').textContent = stats.topics.toLocaleString();
+            document.getElementById('questions-count').textContent = stats.questions.toLocaleString();
+            document.getElementById('users-count').textContent = stats.users.toLocaleString();
+            document.getElementById('answers-count').textContent = stats.answers.toLocaleString();
+            
+            const total = Object.values(stats).reduce((sum, count) => sum + count, 0);
+            document.getElementById('total-count').textContent = total.toLocaleString();
+            
+            // 创建数据分布饼图
+            createDataDistributionChart(stats);
+        }
+        
+        // 加载热门话题
+        async function loadTopics() {
+            const response = await fetch('/api/top-topics');
+            const topics = await response.json();
+            
+            const container = document.getElementById('topics-table');
+            container.innerHTML = '';
+            
+            topics.forEach((topic, index) => {
+                const row = document.createElement('div');
+                row.className = 'table-row';
+                row.innerHTML = `
+                    <div>
+                        <strong>${index + 1}. ${topic.name}</strong><br>
+                        <small>问题: ${topic.questions_count}</small>
+                    </div>
+                    <div style="text-align: right;">
+                        <strong>${topic.followers_count.toLocaleString()}</strong><br>
+                        <small>关注者</small>
+                    </div>
+                `;
+                container.appendChild(row);
+            });
+        }
+        
+        // 加载活跃用户
+        async function loadUsers() {
+            const response = await fetch('/api/top-users');
+            const users = await response.json();
+            
+            const container = document.getElementById('users-table');
+            container.innerHTML = '';
+            
+            users.forEach((user, index) => {
+                const row = document.createElement('div');
+                row.className = 'table-row';
+                row.innerHTML = `
+                    <div>
+                        <strong>${index + 1}. ${user.name}</strong><br>
+                        <small>回答: ${user.answer_count}</small>
+                    </div>
+                    <div style="text-align: right;">
+                        <strong>${user.follower_count.toLocaleString()}</strong><br>
+                        <small>粉丝</small>
+                    </div>
+                `;
+                container.appendChild(row);
+            });
+        }
+        
+        // 加载热门问题
+        async function loadQuestions() {
+            const response = await fetch('/api/top-questions');
+            const questions = await response.json();
+            
+            const container = document.getElementById('questions-table');
+            container.innerHTML = '';
+            
+            questions.forEach((question, index) => {
+                const row = document.createElement('div');
+                row.className = 'table-row';
+                row.innerHTML = `
+                    <div>
+                        <strong>${index + 1}. ${question.title}</strong><br>
+                        <small>关注: ${question.follower_count}</small>
+                    </div>
+                    <div style="text-align: right;">
+                        <strong>${question.answer_count}</strong><br>
+                        <small>回答</small>
+                    </div>
+                `;
+                container.appendChild(row);
+            });
+        }
+        
+        // 创建数据分布图
+        function createDataDistributionChart(stats) {
+            const ctx = document.getElementById('dataDistributionChart').getContext('2d');
+            
+            if (charts.distribution) {
+                charts.distribution.destroy();
+            }
+            
+            charts.distribution = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['话题', '问题', '用户', '回答', '话题详情'],
+                    datasets: [{
+                        data: [stats.topics, stats.questions, stats.users, stats.answers, stats.topic_details],
+                        backgroundColor: [
+                            '#FF6384',
+                            '#36A2EB',
+                            '#FFCE56',
+                            '#4BC0C0',
+                            '#9966FF'
+                        ],
+                        borderWidth: 2,
+                        borderColor: '#fff'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            position: 'bottom'
+                        }
+                    }
+                }
+            });
+        }
+        
+        // 加载图表数据
+        async function loadCharts() {
+            const response = await fetch('/api/chart-data');
+            const data = await response.json();
+            
+            // 创建关注者分布图
+            if (data.follower_distribution.length > 0) {
+                createFollowerChart(data.follower_distribution);
+            }
+        }
+        
+        // 创建关注者分布图
+        function createFollowerChart(data) {
+            const ctx = document.getElementById('followerChart').getContext('2d');
+            
+            if (charts.follower) {
+                charts.follower.destroy();
+            }
+            
+            charts.follower = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: data.map(item => item.range),
+                    datasets: [{
+                        label: '话题数量',
+                        data: data.map(item => item.count),
+                        backgroundColor: 'rgba(54, 162, 235, 0.8)',
+                        borderColor: 'rgba(54, 162, 235, 1)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        }
+        
+        // 刷新数据
+        function refreshData() {
+            loadAllData();
+        }
+        
+        // 更新时间戳
+        function updateTimestamp() {
+            const now = new Date();
+            document.getElementById('update-time').textContent = now.toLocaleString('zh-CN');
+        }
+        
+        // 自动刷新（可选）
+        // setInterval(refreshData, 60000); // 每分钟刷新一次
+    </script>
+</body>
+</html>
