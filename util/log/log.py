@@ -19,15 +19,6 @@ class Mate:
     def __init__(self, ):
         pass
 
-
-"""
-1. 为什么叔本华认为年轻人很早洞察人事、谙于世故预示着本性平庸？    不知 / 2018-02-16  👍 6
-    https://www.zhihu.com/question/61134374/answer/320141220
-    评分：0.63
-    收录：True
-"""
-
-
 class Log:
     def __init__(self, counter, title, author, time, voteup, rate, isrecord):
         self.counter = counter

@@ -42,8 +42,8 @@ def get_random_headers():
         'Sec-Fetch-Site': 'same-origin',
         'Referer': 'https://www.zhihu.com/',
         'X-Requested-With': 'XMLHttpRequest',
-        # 使用原来的Cookie，但增加随机性
-        'Cookie': '_xsrf=WMEJRmbvsAIJ4BZoBJaV4L1YM4MVhM1G; _zap=9af4df19-b993-42ea-87dd-6a41d9922fbf; Hm_lvt_98beee57fd2ef70ccdd5ca52b9740c49=1751166141; d_c0=FeJT3Ft8rhqPTsHKdCi87YPL35q_MIibtOQ=|1751166141; __snaker__id=GQedjPkH9yxsQwyP; gdxidpyhxdE=xTc2sBBhAzJoB%5Cj6h%2FmLH%2Bsi%2FXf23WhM%2FWmr%2B%2B%2BVxC%2Fu8T3N2CXu7M%5C5hiavsOsGEnw1oHjIKjANH2cm%2BlbS2T5QcNKMYSyZKeyhv1gsltia4UATgyDahaMX3fxEmghJi8mKca4idKcqKXwY%2Fz7CwPRM7MUIlDj7aOXIIStWCjzYqBVt%3A1751167041953; z_c0=2|1:0|10:1751166145|4:z_c0|92:Mi4xMVJRYk9nQUFBQUFWNGxQY1czeXVHaVlBQUFCZ0FsVk53ZnBOYVFCS1F5SzdkdEVyZTU5Q2dLNGR6WXp2b3BVTUNR|aeb528a2a1fb82ed86b91ccdceab8cf028c14ccb5c25e0b15e467244939c17bf; sec_token=778c8c41fdde62f358097a0386ee256a; captcha_session_v2=3vqGPMigx50cr+t6DQF8koTkM64t5dlLiJ0unjfEksPdGzLEokNfWMRvbuiMYU76; captcha_ticket_v2=eyJ2YWxpZGF0ZSI6IkNOMzFfTGRSWEdrVzJUclU0Rk1TQ1liVUh6SFEzNExIR1huY2MubFNpQ2Q4MUpuOVNVazl4MF82NUVGa3J0VFBKZFl0MVMqOEJhS3hYU1IwZzBOMjBtemhrcUZncFgyTThtelRGa0xQTkVSZlBnbHBMdEJSOGdFRHhKQzRtVl9OcnZ0TUt0MWV6aVN5bWJsT2dyZkplZlpWNjRlaU1NTGdTTzRCRllrcTVFNEtuemEqZXpZYXlIR05vWlUzMlpHNUhwRnp2OWM1QUk1RGN1VjN0MUIqZFUwc1dvSG42Nm9MQTZvd3dxUDlWZ2tuaHl5cDVXcGJabSouaVFPMDllMkoqdThaUkJpa2oqM0FiZzJtdFpDNmcyYlAzMlZKUG5WYWhZa1lhekIqa1Z2S1F5eERRaXc1cUhQSjZoUS5xajJETGNRVy4xcS5ZRmpZbFRicEl5dHl0UHZXYkQzV2ZNd1d2enBfQSpqelZMNFNrOVhUZ2EyVG51Zk1YcnpkaVJJOXB6alVNNUZUa2RLUUtnM1B5WjFHQ0ZEd2xYNE85MnN6X2Z0S3kwNXFkYllFb3pURHROZkkqcWFKLnhDZXlPZjlBd2x3OTR6dlRTTWdOdWRpaWRiQlRxRzZhKmk5Z0o4bHBlKm1IX25HcmZvQndMQkUwSlBBMyp5ZHpNQ0pkUG4yWDVOVklfc2lGZVg3N192X2lfMSJ9; q_c1=d916866b12624841ab00915a1ea11aab|1751166156000|1751166156000; Hm_lpvt_98beee57fd2ef70ccdd5ca52b9740c49=1751166157; BEC=6c53268835aec2199978cd4b4f988f8c; tst=r'
+        # 使用自己的cookie，同时需要确保cookie是最新的，过期的cookie会导致请求失败
+        'Cookie': 'Your_Cookie_Here',  # 替换为你的cookie
     }
 
 # 创建Session池

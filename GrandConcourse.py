@@ -29,6 +29,14 @@ def search_topics(keyword, max_results=1000):
     offset = 0
     consecutive_empty = 0
     
+    # 定义排除关键词列表
+    exclude_keywords = [
+        '锦江学院', '锦城学院', '锦江', '锦城',
+        '独立学院', '民办', '三本',
+        '西南财经大学', '电子科技大学', '成都理工大学',  # 排除其他学校
+        '职业学院', '专科', '技术学院'
+    ]
+    
     print(f"开始搜索话题: {keyword}")
     
     while len(topics) < max_results:
@@ -57,16 +65,27 @@ def search_topics(keyword, max_results=1000):
                 if item.get('object', {}).get('type') == 'topic':
                     topic_info = item['object']
                     topic_id = topic_info.get('id')
-                    # 避免重复
-                    if not any(t.get('id') == topic_id for t in topics):
+                    topic_name = topic_info.get('name', '')
+                    
+                    # 关键词过滤：排除不想要的话题
+                    should_exclude = False
+                    for exclude_word in exclude_keywords:
+                        if exclude_word in topic_name:
+                            print(f"  ❌ 排除话题: {topic_name} (包含'{exclude_word}')")
+                            should_exclude = True
+                            break
+                    
+                    # 只保留四川大学本部相关的话题
+                    if not should_exclude and not any(t.get('id') == topic_id for t in topics):
                         new_topics.append({
                             'id': topic_id,
-                            'name': topic_info.get('name'),
+                            'name': topic_name,
                             'excerpt': topic_info.get('excerpt', ''),
                             'followers_count': topic_info.get('followers_count', 0),
                             'questions_count': topic_info.get('questions_count', 0),
                             'best_answers_count': topic_info.get('best_answers_count', 0)
                         })
+                        print(f"  ✅ 保留话题: {topic_name}")
             
             if not new_topics:
                 consecutive_empty += 1
@@ -75,7 +94,7 @@ def search_topics(keyword, max_results=1000):
             else:
                 consecutive_empty = 0
                 topics.extend(new_topics)
-                print(f"已获取 {len(topics)} 个话题")
+                print(f"已获取 {len(topics)} 个有效话题")
             
             # 检查是否到底
             paging = data.get('paging', {})
